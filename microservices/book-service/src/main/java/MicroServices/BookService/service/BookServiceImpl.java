@@ -1,11 +1,11 @@
-package MicroServices.ShippingService.service;
+package MicroServices.BookService.service;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import MicroServices.ShippingService.entity.Book;
-import MicroServices.ShippingService.repository.BookRepository;
+import MicroServices.BookService.entity.Book;
+import MicroServices.BookService.repository.BookRepository;
 
 
 @Service

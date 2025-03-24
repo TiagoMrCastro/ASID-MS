@@ -1,7 +1,7 @@
-package MicroServices.ShippingService.controller;
+package MicroServices.BookService.controller;
 
-import MicroServices.ShippingService.entity.Category;
-import MicroServices.ShippingService.service.CategoryService;
+import MicroServices.BookService.entity.Category;
+import MicroServices.BookService.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

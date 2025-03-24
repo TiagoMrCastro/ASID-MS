@@ -1,4 +1,4 @@
-package MicroServices.ShippingService.controller;
+package MicroServices.BookService.controller;
 
 import java.util.List;
 
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import MicroServices.ShippingService.entity.Book;
-import MicroServices.ShippingService.service.BookService;
+import MicroServices.BookService.entity.Book;
+import MicroServices.BookService.service.BookService;
 
 /**
  * Controller para manipular as requisições relacionadas aos livros.

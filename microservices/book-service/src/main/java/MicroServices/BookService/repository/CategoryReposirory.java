@@ -1,11 +1,11 @@
-package MicroServices.ShippingService.repository;
+package MicroServices.BookService.repository;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 
-import MicroServices.ShippingService.entity.Category;
+import MicroServices.BookService.entity.Category;
 
 
 

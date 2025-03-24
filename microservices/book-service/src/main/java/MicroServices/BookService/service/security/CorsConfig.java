@@ -1,4 +1,4 @@
-package MicroServices.ShippingService.service.security;
+package MicroServices.BookService.service.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;

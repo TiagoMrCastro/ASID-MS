@@ -1,4 +1,5 @@
-package MicroServices.ShippingService.entity;
+package MicroServices.BookService.entity;
+
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -6,21 +7,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@NoArgsConstructor
-public class Author {
+public class Category {
     
+    public static final String HttpStatus = null;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "authorid")
+    @Column(name = "categoryid")
     private Long id;
 
-    @Column(unique = true , nullable = false)
-    private String authorName;
+    @Column(unique = true)
+    private String name;
 
-    // @OneToMany(mappedBy = "authorid")
-    // private Book book;
+    
+   
+   
 }

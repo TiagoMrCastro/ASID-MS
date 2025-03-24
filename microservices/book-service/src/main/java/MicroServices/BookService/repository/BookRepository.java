@@ -1,4 +1,4 @@
-package MicroServices.ShippingService.repository;
+package MicroServices.BookService.repository;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import MicroServices.ShippingService.entity.Book;
+import MicroServices.BookService.entity.Book;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book,Long> {

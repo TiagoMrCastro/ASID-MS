@@ -1,8 +1,8 @@
-package MicroServices.ShippingService.service;
+package MicroServices.BookService.service;
 
 
-import MicroServices.ShippingService.entity.Category;
-import MicroServices.ShippingService.repository.CategoryReposirory;
+import MicroServices.BookService.entity.Category;
+import MicroServices.BookService.repository.CategoryReposirory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

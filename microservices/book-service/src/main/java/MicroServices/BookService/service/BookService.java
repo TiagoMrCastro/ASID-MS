@@ -1,10 +1,10 @@
-package MicroServices.ShippingService.service;
+package MicroServices.BookService.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import MicroServices.ShippingService.entity.Book;
+import MicroServices.BookService.entity.Book;
 
 @Service
 public interface BookService {
