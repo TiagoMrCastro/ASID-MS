@@ -1,100 +1,90 @@
 package MicroServices.CartService.service;
 
-import java.util.List;
-import java.util.Optional;
-
+import MicroServices.CartService.dto.BookDTO;
+import MicroServices.CartService.entity.CartItem;
+import MicroServices.CartService.repository.CartItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import MicroServices.CartService.entity.CartItem;
-import MicroServices.CartService.entity.User;
-import MicroServices.CartService.repository.CartItemRepository;
-import MicroServices.CartService.repository.UserRepository;
+import java.util.List;
 
 @Service
-public class CartItemServiceImpl implements CartItemService{
+public class CartItemServiceImpl implements CartItemService {
 
     @Autowired
     private CartItemRepository cartItemRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private RestTemplate restTemplate;
+
+    private final String BOOK_SERVICE_BASE_URL = "http://localhost:8080/books/"; // via gateway
 
     @Override
-    public CartItem createCartItem(CartItem cartItem){
+    public CartItem createCartItem(CartItem cartItem) {
+        BookDTO book = restTemplate.getForObject(BOOK_SERVICE_BASE_URL + cartItem.getBookId(), BookDTO.class);
+
+        if (book == null || book.getQuantity() < cartItem.getQuantity()) {
+            throw new RuntimeException("Book not available or insufficient stock");
+        }
+
+        cartItem.setUnitPrice(book.getPrice());
+        cartItem.setSubTotal(book.getPrice() * cartItem.getQuantity());
 
         return cartItemRepository.save(cartItem);
-
-
     }
 
-   public List<CartItem> getAllCartitem(){
-
+    @Override
+    public List<CartItem> getAllCartitem() {
         return cartItemRepository.findAll();
-
-
     }
 
-    public CartItem getCartItemById(Long id){
-
+    @Override
+    public CartItem getCartItemById(Long id) {
         return cartItemRepository.findById(id).orElse(null);
     }
 
-    public CartItem patchCartQuantity(Long id, CartItem cartItem){
+    @Override
+    public CartItem patchCartQuantity(Long id, CartItem cartItem) {
         CartItem existItem = cartItemRepository.findById(id).orElse(null);
-    
         if (existItem != null) {
-            
             existItem.setQuantity(cartItem.getQuantity());
-            cartItemRepository.save(existItem);
-    
-            return existItem;
-        } else { 
-            return null;
+            return cartItemRepository.save(existItem);
         }
+        return null;
     }
-    
 
-    public CartItem patchCartSubTotal(Long id, CartItem cartItem){
+    @Override
+    public CartItem patchCartSubTotal(Long id, CartItem cartItem) {
         CartItem existItem = cartItemRepository.findById(id).orElse(null);
-    
         if (existItem != null) {
-            
             existItem.setSubTotal(cartItem.getSubTotal());
-            cartItemRepository.save(existItem);
-    
-            return existItem;
-        } else { 
-            return null;
+            return cartItemRepository.save(existItem);
         }
+        return null;
     }
 
-
-    public CartItem deleteCartItyItemById(Long id){
-
+    @Override
+    public CartItem deleteCartItyItemById(Long id) {
         CartItem existItem = cartItemRepository.findById(id).orElse(null);
-
-        if(existItem !=null){
-
+        if (existItem != null) {
             cartItemRepository.delete(existItem);
         }
         return null;
     }
 
-
-    public void clearCart(){
-
+    @Override
+    public void clearCart() {
         cartItemRepository.deleteAll();
-        
     }
 
+    @Override
     public void resetAutoIncrement() {
         cartItemRepository.resetAutoIncrement();
     }
 
+    @Override
     public List<CartItem> getCartItemsByUsername(String username) {
-
-        return cartItemRepository.findByUser_Username(username);
-        
+        throw new UnsupportedOperationException("Fetching by username is deprecated. Use userId instead.");
     }
 }

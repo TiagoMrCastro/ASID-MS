@@ -19,7 +19,6 @@ import MicroServices.CartService.entity.Cart;
 import MicroServices.CartService.service.CartService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 public class CartController {// Injeção de dependência do serviço de carrinho de compras
     @Autowired
     private CartService cartService;

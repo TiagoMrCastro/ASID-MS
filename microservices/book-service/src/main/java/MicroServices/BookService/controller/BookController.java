@@ -18,7 +18,7 @@ import MicroServices.BookService.service.BookService;
 /**
  * Controller para manipular as requisições relacionadas aos livros.
  */
-@CrossOrigin(origins = "http://localhost:3000")
+
 @RestController
 public class BookController {
 

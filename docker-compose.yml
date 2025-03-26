@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # Service Registry (Eureka)
+  eureka-server:
+    build:
+      context: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - backend
+
+  # API Gateway
+  gateway-service:
+    build:
+      context: ./api-gateway
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    networks:
+      - backend
+
+  # Book Service
+  book-service:
+    build:
+      context: ./microservices/book-service
+    container_name: book-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://book-db:3306/bookdb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+    depends_on:
+      - book-db
+      - eureka-server
+    ports:
+      - "8081:8080"
+    networks:
+      - backend
+
+  book-db:
+    image: mariadb:10.7
+    container_name: book-db
+    environment:
+      MYSQL_DATABASE: bookdb
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - "3307:3306"
+    volumes:
+      - bookdb-data:/var/lib/mysql
+    networks:
+      - backend
+
+  # Cart Service
+  cart-service:
+    build:
+      context: ./microservices/cart-service
+    container_name: cart-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://cart-db:3306/cartdb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+    depends_on:
+      - cart-db
+      - eureka-server
+    ports:
+      - "8082:8080"
+    networks:
+      - backend
+
+  cart-db:
+    image: mariadb:10.7
+    container_name: cart-db
+    environment:
+      MYSQL_DATABASE: cartdb
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - "3308:3306"
+    volumes:
+      - cartdb-data:/var/lib/mysql
+    networks:
+      - backend
+
+volumes:
+  bookdb-data:
+  cartdb-data:
+
+networks:
+  backend:

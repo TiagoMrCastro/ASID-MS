@@ -15,7 +15,7 @@ import lombok.Data;
 @Entity
 @Data
 public class Cart {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cartid")
@@ -24,8 +24,6 @@ public class Cart {
     @Column
     private LocalDate createdDate;
 
-    @OneToOne
-    @JoinColumn(name="user_id")
-    private User user;
-    
+    @Column(name = "user_id")
+    private Long userId; // substitui o relacionamento com a entidade User
 }

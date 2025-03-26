@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import MicroServices.CartService.entity.CartItem;
 import MicroServices.CartService.service.CartItemService;
 
-@CrossOrigin(origins = "http://localhost:3000")
+
 // Controlador REST para manipular as requisições relacionadas aos itens do carrinho
 @RestController
 public class CartItemController {

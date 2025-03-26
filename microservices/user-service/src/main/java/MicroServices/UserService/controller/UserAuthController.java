@@ -26,7 +26,7 @@ import com.ijse.bookstore.entity.User;
 import com.ijse.bookstore.repository.UserRepository;
 import com.ijse.bookstore.service.security.jwt.JwtUtils;
 
-@CrossOrigin(origins = "http://localhost:3000")
+
 @RestController
 public class UserAuthController {
     
