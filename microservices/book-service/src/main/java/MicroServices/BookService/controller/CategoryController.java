@@ -17,7 +17,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
 
-     @GetMapping("/category")
+    @GetMapping("/books/categories")
      public ResponseEntity<List<Category>> getAllCategory(){
         List<Category> categories = categoryService.getAllCategories();
          return new ResponseEntity<>(categories, HttpStatus.OK);

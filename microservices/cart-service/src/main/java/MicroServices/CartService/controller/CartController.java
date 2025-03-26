@@ -1,4 +1,4 @@
-// Pacote onde a classe está localizada
+
 package MicroServices.CartService.controller;// Controlador REST para manipular as requisições relacionadas ao carrinho de compras
 
 import java.util.List;
