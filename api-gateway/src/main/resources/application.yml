@@ -12,10 +12,32 @@ spring:
           uri: lb://book-service
           predicates:
             - Path=/books/**
+
         - id: cart-service
           uri: lb://cart-service
           predicates:
             - Path=/cart/**
+
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/orders/**
+
+        - id: shipping-service
+          uri: lb://shipping-service
+          predicates:
+            - Path=/shipping/**
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+
       discovery:
         locator:
           enabled: false

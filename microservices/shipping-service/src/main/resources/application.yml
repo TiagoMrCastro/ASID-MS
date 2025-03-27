@@ -3,10 +3,10 @@ server:
 
 spring:
   application:
-    name: auth-service
+    name: shipping-service
 
   datasource:
-    url: jdbc:mariadb://book-db:3306/authdb
+    url: jdbc:mariadb://book-db:3306/shippingdb
     username: root
     password: secret
     driver-class-name: org.mariadb.jdbc.Driver

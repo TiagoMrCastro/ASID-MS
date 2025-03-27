@@ -13,7 +13,6 @@ import MicroServices.OrderService.service.OrderDetailsService;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 public class OrderDetailsController {
     
     @Autowired

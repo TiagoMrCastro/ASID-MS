@@ -25,16 +25,16 @@ public class OrderDetails {
     @Column
     private double subTotal;
 
-    @ManyToOne
-    @JoinColumn(name = "book_id")
-    private Book book;
+    // @ManyToOne
+    // @JoinColumn(name = "book_id")
+    // private Book book;
 
-    @OneToOne
-    @JoinColumn(name = "shippingorder_id")
-    private ShippingOrder shippingOrder;
+    // @OneToOne
+    // @JoinColumn(name = "shippingorder_id")
+    // private ShippingOrder shippingOrder;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    // @OneToOne
+    // @JoinColumn(name = "user_id")
+    // private User user;
 
 }

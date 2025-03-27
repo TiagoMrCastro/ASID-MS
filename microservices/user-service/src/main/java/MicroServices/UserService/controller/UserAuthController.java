@@ -1,4 +1,4 @@
-package com.ijse.bookstore.controller;
+package MicroServices.UserService.controller;
 
 import java.text.ParseException;
 import java.util.List;
@@ -21,10 +21,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ijse.bookstore.dto.LoginDTO;
-import com.ijse.bookstore.entity.User;
-import com.ijse.bookstore.repository.UserRepository;
-import com.ijse.bookstore.service.security.jwt.JwtUtils;
+// import com.ijse.bookstore.dto.LoginDTO;
+// import com.ijse.bookstore.entity.User;
+// import com.ijse.bookstore.repository.UserRepository;
+// import com.ijse.bookstore.service.security.jwt.JwtUtils;
 
 
 @RestController

@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>MicroServices</groupId>
-	<artifactId>BookService</artifactId>
+	<artifactId>UserService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>BookService</name>
+	<name>UserService</name>
 	<description>Arquitetura em micro servicos</description>
 	<url/>
 	<licenses>
@@ -42,6 +42,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		<version>4.1.1</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
