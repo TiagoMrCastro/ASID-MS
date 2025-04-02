@@ -1,120 +1,59 @@
 package MicroServices.UserService.controller;
 
-import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import MicroServices.UserService.dto.*;
+import MicroServices.UserService.entity.User;
+import MicroServices.UserService.repository.UserRepository;
+import MicroServices.UserService.security.JwtUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.*;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
 
-// import com.ijse.bookstore.dto.LoginDTO;
-// import com.ijse.bookstore.entity.User;
-// import com.ijse.bookstore.repository.UserRepository;
-// import com.ijse.bookstore.service.security.jwt.JwtUtils;
+
 
 
 @RestController
+@RequestMapping("/auth")
 public class UserAuthController {
-    
 
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final PasswordEncoder encoder;
+    private final UserRepository userRepo;
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    JwtUtils jwtUtils;
-
-    @Autowired
-    AuthenticationManager authenticationManager;
-
-    @PostMapping("/auth/register")
-    public ResponseEntity<?> registierUser(@RequestBody User user){
-        
-        if(userRepository.existsByUsername(user.getUsername())){
-
-            return ResponseEntity.badRequest().body("Username already exists");
-
-        }
-
-        if(userRepository.existsByEmail(user.getEmail())){
-
-            return ResponseEntity.badRequest().body("Email is already being used");
-
-        }
-
-        User newUser = new User();
-        newUser.setFullname(user.getFullname());
-        newUser.setUsername(user.getUsername());
-        newUser.setEmail(user.getEmail());
-        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        
-        userRepository.save(newUser);
-
-        return ResponseEntity.ok(Map.of("message", "User created successfully"));
-
+    public UserAuthController(AuthenticationConfiguration authConfig, JwtUtils jwtUtils,
+                              PasswordEncoder encoder, UserRepository userRepo) throws Exception {
+        this.authenticationManager = authConfig.getAuthenticationManager();
+        this.jwtUtils = jwtUtils;
+        this.encoder = encoder;
+        this.userRepo = userRepo;
     }
 
-    @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO){
+    @PostMapping("/register")
+    public String register(@RequestBody RegisterRequest req) {
+        User user = new User();
+        user.setUsername(req.getUsername());
+        user.setEmail(req.getEmail());
+        user.setFullname(req.getFullname());
+        user.setPassword(encoder.encode(req.getPassword()));
+        userRepo.save(user);
+        return "User registered!";
+    }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         try {
-            Authentication authentication =authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword())
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
             );
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            String jwt = jwtUtils.generationJwtToken(authentication);
-
-            return ResponseEntity.ok(Map.of("token", jwt));
-
-        } catch (BadCredentialsException ex) {
-
-            return ResponseEntity.status(401).body("Invalid username or password");
-
+            String token = jwtUtils.generateJwtToken(req.getUsername());
+            return ResponseEntity.ok(new JwtResponse(token));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas.");
         }
     }
-
-
-    @GetMapping("/user")
-    public ResponseEntity<List<User>> getAllUser(@RequestBody User user){
-
-        List<User> existUser = userRepository.findAll();
-
-
-        return new ResponseEntity<>(existUser,HttpStatus.OK);
-        
-    }
-
-
-    @GetMapping("/id/{username}") 
-    public ResponseEntity<Optional<User>> getUserIdByUsername(@PathVariable String username) {
-        Optional<User> userId = userRepository.findByUsername(username);
-
-        if (userId != null) {
-            return ResponseEntity.ok(userId);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-  
 }
+

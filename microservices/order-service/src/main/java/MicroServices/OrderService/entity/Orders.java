@@ -7,15 +7,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 @Entity
 @Data
-
 public class Orders {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "orderid")
@@ -27,7 +24,9 @@ public class Orders {
     @Column
     private double totalPrice;
 
-    // @ManyToOne
-    // @JoinColumn(name = "shippingorder_id")
-    // private ShippingOrder shippingOrder;
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "shippingorder_id")
+    private Long shippingId;
 }

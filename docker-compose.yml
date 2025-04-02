@@ -83,18 +83,6 @@ services:
     networks:
       - backend
 
-  # Auth Service
-  # auth-service:
-  #   build:
-  #     context: ./microservices/auth-service
-  #   container_name: auth-service
-  #   depends_on:
-  #     - eureka-server
-  #   ports:
-  #     - "8083:8080"
-  #   networks:
-  #     - backend
-
   # Order Service
   order-service:
     build:
@@ -155,42 +143,44 @@ services:
     networks:
       - backend
 
-  # User Service
-  # user-service:
-  #   build:
-  #     context: ./microservices/user-service
-  #   container_name: user-service
-  #   environment:
-  #     - SPRING_DATASOURCE_URL=jdbc:mariadb://user-db:3306/userdb
-  #     - SPRING_DATASOURCE_USERNAME=root
-  #     - SPRING_DATASOURCE_PASSWORD=secret
-  #   depends_on:
-  #     - user-db
-  #     - eureka-server
-  #   ports:
-  #     - "8086:8080"
-  #   networks:
-  #     - backend
+  user-service:
+    build:
+      context: ./microservices/user-service
+    container_name: user-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://user-db:3306/userdb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+    depends_on:
+      - user-db
+      - eureka-server
+    ports:
+      - "8086:8080"
+    networks:
+      - backend
 
-  # user-db:
-  #   image: mariadb:10.7
-  #   container_name: user-db
-  #   environment:
-  #     MYSQL_DATABASE: userdb
-  #     MYSQL_ROOT_PASSWORD: secret
-  #   ports:
-  #     - "3311:3306"
-  #   volumes:
-  #     - userdb-data:/var/lib/mysql
-  #   networks:
-  #     - backend
+
+  user-db:
+    image: mariadb:10.7
+    container_name: user-db
+    environment:
+      MYSQL_DATABASE: userdb
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - "3311:3306"
+    volumes:
+      - userdb-data:/var/lib/mysql
+    networks:
+      - backend
+
 
 volumes:
   bookdb-data:
   cartdb-data:
   orderdb-data:
   shippingdb-data:
-  # userdb-data:
+  userdb-data:
+
 
 networks:
   backend:

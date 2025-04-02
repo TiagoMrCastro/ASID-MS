@@ -1,10 +1,9 @@
-package com.ijse.bookstore.dto;
+package MicroServices.UserService.dto;
 
 import lombok.Data;
 
 @Data
-public class LoginDTO {
+public class LoginRequest {
     private String username;
     private String password;
 }
-

@@ -1,12 +1,12 @@
 server:
-  port: 8080
+  port: 8086
 
 spring:
   application:
     name: user-service
 
   datasource:
-    url: jdbc:mariadb://book-db:3306/userdb
+    url: jdbc:mariadb://user-db:3306/userdb
     username: root
     password: secret
     driver-class-name: org.mariadb.jdbc.Driver
