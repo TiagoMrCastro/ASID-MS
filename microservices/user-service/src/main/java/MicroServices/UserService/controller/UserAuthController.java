@@ -33,15 +33,20 @@ public class UserAuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest req) {
-        User user = new User();
-        user.setUsername(req.getUsername());
-        user.setEmail(req.getEmail());
-        user.setFullname(req.getFullname());
-        user.setPassword(encoder.encode(req.getPassword()));
-        userRepo.save(user);
-        return "User registered!";
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+        try {
+            User user = new User();
+            user.setUsername(req.getUsername());
+            user.setEmail(req.getEmail());
+            user.setFullname(req.getFullname());
+            user.setPassword(req.getPassword()); // SEM criptografia por enquanto
+            userRepo.save(user);
+            return ResponseEntity.ok("Utilizador registado com sucesso.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Utilizador ou e-mail já existe.");
+        }
     }
+    
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
