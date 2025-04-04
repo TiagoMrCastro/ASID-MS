@@ -1,4 +1,4 @@
-package com.gateway.dto;
+package MicroServices.ShippingService.dto;
 
 import lombok.Data;
 

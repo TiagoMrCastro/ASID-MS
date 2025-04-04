@@ -60,5 +60,6 @@ public class UserAuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas.");
         }
     }
+
 }
 
