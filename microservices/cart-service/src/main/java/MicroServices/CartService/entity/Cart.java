@@ -26,4 +26,5 @@ public class Cart {
 
     @Column(name = "user_id")
     private Long userId; // substitui o relacionamento com a entidade User
+
 }

@@ -1,4 +1,4 @@
-package MicroServices.UserService.security;
+package MicroServices.UserService.service;
 
 import MicroServices.UserService.entity.User;
 import MicroServices.UserService.repository.UserRepository;
