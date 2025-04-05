@@ -1,16 +1,24 @@
 package MicroServices.CartService.service;
 
 import MicroServices.CartService.dto.BookDTO;
+import MicroServices.CartService.entity.Cart;
 import MicroServices.CartService.entity.CartItem;
 import MicroServices.CartService.repository.CartItemRepository;
+import MicroServices.CartService.repository.CartRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class CartItemServiceImpl implements CartItemService {
+
+    @Autowired
+    private CartRepository cartRepository;
+
 
     @Autowired
     private CartItemRepository cartItemRepository;
@@ -18,20 +26,41 @@ public class CartItemServiceImpl implements CartItemService {
     @Autowired
     private RestTemplate restTemplate;
 
-    private final String BOOK_SERVICE_BASE_URL = "http://localhost:8080/books/"; // via gateway
 
-    @Override
+   @Override
     public CartItem createCartItem(CartItem cartItem) {
-        BookDTO book = restTemplate.getForObject(BOOK_SERVICE_BASE_URL + cartItem.getBookId(), BookDTO.class);
+    // 1. Obter ou criar carrinho do utilizador
+        Cart cart = cartRepository.getCartIdByUserId(cartItem.getUserId());
 
-        if (book == null || book.getQuantity() < cartItem.getQuantity()) {
-            throw new RuntimeException("Book not available or insufficient stock");
+        if (cart == null) {
+            cart = new Cart();
+            cart.setUserId(cartItem.getUserId());
+            cart.setCreatedDate(LocalDate.now());
+            cart = cartRepository.save(cart);
         }
 
-        cartItem.setUnitPrice(book.getPrice());
-        cartItem.setSubTotal(book.getPrice() * cartItem.getQuantity());
-
-        return cartItemRepository.save(cartItem);
+        // 2. Obter info do livro
+        try {
+            BookDTO book = restTemplate.getForObject("http://book-service/books/" + cartItem.getBookId(), BookDTO.class);
+            
+            if (book == null) {
+                throw new RuntimeException("Book not found.");
+            }
+        
+            if (book.getQuantity() < cartItem.getQuantity()) {
+                throw new RuntimeException("Insufficient stock for book ID: " + book.getId());
+            }
+        
+            cartItem.setCart(cart);
+            cartItem.setUnitPrice(book.getPrice());
+            cartItem.setSubTotal(book.getPrice() * cartItem.getQuantity());
+        
+            return cartItemRepository.save(cartItem);
+        
+        } catch (Exception ex) {
+            throw new RuntimeException("Erro ao obter livro: " + ex.getMessage(), ex);
+        }
+        
     }
 
     @Override

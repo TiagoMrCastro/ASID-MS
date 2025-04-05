@@ -1,4 +1,6 @@
 # ASID-MS
+mvn clean package -DskipTests
+docker compose up --build
 
 # 1. Para os containers
 docker-compose down
@@ -77,3 +79,16 @@ INSERT INTO order_details (order_detailsid, quantity, sub_total, book_id, order_
 VALUES 
 (1, 1, 29.99, 1, 1),
 (2, 1, 20.00, 2, 1);
+
+
+-- Carts para os utilizadores 1 e 2
+INSERT INTO cart (cartid, created_date, user_id) VALUES 
+(1, CURRENT_DATE(), 1),
+(2, CURRENT_DATE(), 2);
+
+-- Utilizador 1: adiciona 2x 'Clean Code' (bookid = 2, preço 39.99)
+-- Utilizador 2: adiciona 1x 'Harry Potter' (bookid = 1, preço 29.99)
+
+INSERT INTO cart_item (id, quantity, unit_price, sub_total, book_id, user_id, cart_id) VALUES 
+(1, 2, 39.99, 79.98, 2, 1, 1),
+(2, 1, 29.99, 29.99, 1, 2, 2);

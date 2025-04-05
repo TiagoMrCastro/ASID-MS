@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import MicroServices.CartService.entity.CartItem;
@@ -21,6 +22,7 @@ import MicroServices.CartService.service.CartItemService;
 
 // Controlador REST para manipular as requisições relacionadas aos itens do carrinho
 @RestController
+@RequestMapping("/cart")
 public class CartItemController {
     // Injeção de dependência do serviço de itens do carrinho
     @Autowired
@@ -33,7 +35,7 @@ public class CartItemController {
      * @param cartItem Objeto CartItem contendo os dados do novo item.
      * @return ResponseEntity contendo o item criado e o status HTTP CREATED.
      */
-    @PostMapping("/cartitem")
+    @PostMapping("/items")
     public ResponseEntity<CartItem> createCartItem(@RequestBody CartItem cartItem){
 
         CartItem createdCartItem = cartItemService.createCartItem(cartItem);
@@ -48,7 +50,7 @@ public class CartItemController {
      * @return ResponseEntity contendo a lista de todos os itens do carrinho e o status HTTP OK.
      */
 
-    @GetMapping("/cartitem")
+    @GetMapping("/items")
     public ResponseEntity<List<CartItem>> getAllCartItem(){
 
         List<CartItem> cartItems = cartItemService.getAllCartitem();
