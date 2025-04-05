@@ -21,13 +21,13 @@ public class CartCompositionController {
     public Mono<CartItemResponse> addToCart(@RequestBody AddToCartRequest request) {
         WebClient webClient = webClientBuilder.build();
 
-        // Buscar dados do usuário
+        // Obtem os dados do user
         Mono<UserDto> userMono = webClient.get()
             .uri("lb://user-service/users/" + request.getUserId())
             .retrieve()
             .bodyToMono(UserDto.class);
 
-        // Buscar dados do livro
+        // dados do livro
         Mono<BookDto> bookMono = webClient.get()
             .uri("lb://book-service/books/" + request.getBookId())
             .retrieve()

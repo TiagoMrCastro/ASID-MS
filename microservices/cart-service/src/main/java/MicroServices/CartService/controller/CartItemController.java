@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -77,7 +76,7 @@ public class CartItemController {
     /**
      * Endpoint para obter itens do carrinho pelo nome de usuário.
      *
-     * @param username O nome de usuário para recuperar os itens do carrinho.
+     * @param username O nome de utilizar para recuperar os itens do carrinho.
      * @return ResponseEntity contendo a lista de itens do carrinho e o status HTTP OK.
      */
     @GetMapping("/cartitem/user/{username}")
@@ -135,7 +134,7 @@ public class CartItemController {
         cartItemService.resetAutoIncrement();
     }
     /**
-     * Endpoint para deletar um item do carrinho pelo seu ID.
+     * Endpoint para apagar um item do carrinho pelo seu ID.
      *
      * @param id O ID do item do carrinho a ser deletado.
      * @return ResponseEntity com o status HTTP NO CONTENT.
