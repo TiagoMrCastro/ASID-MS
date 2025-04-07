@@ -1,5 +1,5 @@
 server:
-  port: 8086
+  port: 8080
 
 spring:
   application:
@@ -17,10 +17,3 @@ spring:
     show-sql: true
     database-platform: org.hibernate.dialect.MariaDBDialect
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${random.value}

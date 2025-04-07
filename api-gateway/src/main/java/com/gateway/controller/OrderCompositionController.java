@@ -26,7 +26,7 @@ public class OrderCompositionController {
     
         Mono<OrderDto> orderMono = webClientBuilder.build()
                 .get()
-                .uri("lb://order-service/orders/" + orderId)
+                .uri("http://order-service:8080/orders/" + orderId)
                 .retrieve()
                 .bodyToMono(OrderDto.class);
     
@@ -38,20 +38,20 @@ public class OrderCompositionController {
     
             Mono<UserDto> userMono = webClientBuilder.build()
                     .get()
-                    .uri("lb://user-service/users/" + userId)
+                    .uri("http://user-service:8080/users/" + userId)
                     .retrieve()
                     .bodyToMono(UserDto.class);
     
             Mono<ShippingDto> shippingMono = webClientBuilder.build()
                     .get()
-                    .uri("lb://shipping-service/shipping/" + shippingId)
+                    .uri("http://shipping-service:8080/shipping/" + shippingId)
                     .retrieve()
                     .bodyToMono(ShippingDto.class);
     
                     List<Mono<BookDto>> bookMonos = bookIds.stream()
                     .map(bookId -> webClientBuilder.build()
                         .get()
-                        .uri("lb://book-service/books/" + bookId)
+                        .uri("http://book-service:8080/books/" + bookId)
                         .retrieve()
                         .onStatus(status -> status.is4xxClientError(), response -> {
                             System.out.println("Livro não encontrado: " + bookId);

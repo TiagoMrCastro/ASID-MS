@@ -9,7 +9,6 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 @Configuration
 public class WebClientConfig {
     @Bean
-    @LoadBalanced 
     public WebClient.Builder webClientBuilder() {
         return WebClient.builder();
     }

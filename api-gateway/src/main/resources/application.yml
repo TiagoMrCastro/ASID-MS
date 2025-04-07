@@ -9,40 +9,31 @@ spring:
     gateway:
       routes:
         - id: book-service
-          uri: lb://book-service
+          uri: http://book-service:8080
           predicates:
             - Path=/books/**
 
         - id: cart-service
-          uri: lb://cart-service
+          uri: http://cart-service:8080
           predicates:
             - Path=/cart/**
 
         - id: order-service
-          uri: lb://order-service
+          uri: http://order-service:8080
           predicates:
             - Path=/orders/**
 
         - id: shipping-service
-          uri: lb://shipping-service
+          uri: http://shipping-service:8080
           predicates:
             - Path=/shipping/**
 
         - id: user-service
-          uri: lb://user-service
+          uri: http://user-service:8080
           predicates:
             - Path=/auth/**, /users/**
-
-      discovery:
-        locator:
-          enabled: false
 
   cors:
     allowed-origins: "*"
     allowed-methods: "*"
     allowed-headers: "*"
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
