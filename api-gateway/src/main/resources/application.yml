@@ -32,6 +32,12 @@ spring:
           uri: http://user-service:8080
           predicates:
             - Path=/auth/**, /users/**
+        
+        - id: order-history-service
+          uri: http://order-history-service:8080
+          predicates:
+            - Path=/history/**
+
 
   cors:
     allowed-origins: "*"

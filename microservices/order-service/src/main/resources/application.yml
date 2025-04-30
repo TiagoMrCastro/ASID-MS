@@ -16,3 +16,14 @@ spring:
       ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.MariaDBDialect
+
+  kafka:
+    bootstrap-servers: kafka:9092
+
+eventuate:
+  outbox:
+    tableName: message
+    idColumn: id
+    destinationColumn: destination
+    headersColumn: headers
+    payloadColumn: payload
