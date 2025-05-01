@@ -33,7 +33,25 @@ spring:
           predicates:
             - Path=/auth/**, /users/**
 
-  cors:
-    allowed-origins: "*"
-    allowed-methods: "*"
-    allowed-headers: "*"
+        - id: order-history-service
+          uri: http://order-history-service:8080
+          predicates:
+            - Path=/history/**
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
