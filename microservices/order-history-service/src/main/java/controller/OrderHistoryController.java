@@ -1,14 +1,16 @@
-package com.example.orderhistoryservice.controller;
+package main.java.orderhistoryservice.controller;
 
-import com.example.orderhistoryservice.repository.OrderHistoryRepository;
-import com.example.orderhistoryservice.dto.OrderDetailsResponse;
-import com.example.orderhistoryservice.entity.OrderHistory;
+import main.java.orderhistoryservice.dto.OrderDetailsResponse;
+import main.java.orderhistoryservice.entity.OrderHistory;
+import main.java.orderhistoryservice.entity.ShippingInfo;
+import main.java.orderhistoryservice.repository.OrderHistoryRepository;
+import main.java.orderhistoryservice.repository.ShippingInfoRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -17,6 +19,7 @@ import java.util.List;
 public class OrderHistoryController {
 
     private final OrderHistoryRepository repository;
+    private final ShippingInfoRepository shippingInfoRepository;
 
     @GetMapping("/{userId}")
     public List<OrderHistory> getOrders(
@@ -26,7 +29,6 @@ public class OrderHistoryController {
     ) {
         return repository.findByUserIdAndOrderDateBetween(userId, from, to);
     }
-
 
     @GetMapping("/{userId}/details")
     public List<OrderDetailsResponse> getDetailedOrders(
@@ -44,15 +46,27 @@ public class OrderHistoryController {
 
             try {
                 List<OrderDetailsResponse.BookInfo> books = Arrays.asList(
-                    new ObjectMapper().readValue(order.getBooksJson(), OrderDetailsResponse.BookInfo[].class)
+                        new ObjectMapper().readValue(order.getBooksJson(), OrderDetailsResponse.BookInfo[].class)
                 );
                 response.setBooks(books);
             } catch (Exception e) {
                 response.setBooks(List.of());
             }
 
+            // 🔽 Adiciona os dados do Shipping, se existir
+            ShippingInfo info = shippingInfoRepository.findById(order.getShippingId()).orElse(null);
+            if (info != null) {
+                OrderDetailsResponse.Shipping shipping = new OrderDetailsResponse.Shipping();
+                shipping.setFirstName(info.getFirstName());
+                shipping.setLastName(info.getLastName());
+                shipping.setAddress(info.getAddress());
+                shipping.setCity(info.getCity());
+                shipping.setEmail(info.getEmail());
+                shipping.setPostalCode(info.getPostalCode());
+                response.setShipping(shipping);
+            }
+
             return response;
         }).toList();
     }
-
 }

@@ -1,5 +1,5 @@
 
-package com.example.orderhistoryservice.dto;
+package main.java.orderhistoryservice.dto;
 
 import lombok.Data;
 import java.time.LocalDate;
@@ -12,6 +12,7 @@ public class OrderDetailsResponse {
     private Double totalPrice;
     private String shippingAddress;
     private List<BookInfo> books;
+    private Shipping shipping;
 
     @Data
     public static class BookInfo {
@@ -19,5 +20,15 @@ public class OrderDetailsResponse {
         private String title;
         private int quantity;
         private double price;
+    }
+
+    @Data
+    public static class Shipping {
+        private String firstName;
+        private String lastName;
+        private String address;
+        private String city;
+        private String email;
+        private String postalCode;
     }
 }

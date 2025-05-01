@@ -56,7 +56,7 @@ import org.springframework.web.bind.annotation.PathVariable;
                 dto.setAddress(order.getAddress());
                 dto.setCity(order.getCity());
                 dto.setEmail(order.getEmail());
-                dto.setPostal_code(order.getPostal_code());
+                dto.setPostalCode(order.getPostalCode());
                 return ResponseEntity.ok(dto);
             })
             .orElse(ResponseEntity.notFound().build());

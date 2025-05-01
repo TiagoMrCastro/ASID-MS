@@ -1,7 +1,7 @@
-package com.example.orderhistoryservice.repository;
+package main.java.orderhistoryservice.repository;
 
 
-import com.example.orderhistoryservice.entity.OrderHistory;
+import main.java.orderhistoryservice.entity.OrderHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

@@ -28,7 +28,7 @@ public class ShippingOrder {
     @Column
     private String email;
 
-    @Column
-    private String postal_code;
+    @Column(name = "postal_code")
+    private String postalCode;
 
 }

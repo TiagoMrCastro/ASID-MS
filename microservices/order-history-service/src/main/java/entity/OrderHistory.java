@@ -1,4 +1,4 @@
-package com.example.orderhistoryservice.entity;
+package main.java.orderhistoryservice.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -19,7 +19,9 @@ public class OrderHistory {
 
     private Double totalPrice;
 
-    private String shippingAddress;
+    private String shippingAddress; 
+    
+    private Long shippingId;
 
     @Lob
     private String booksJson; // detalhes dos livros como JSON

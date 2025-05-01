@@ -1,7 +1,7 @@
-package com.example.orderhistoryservice.kafka;
+package main.java.orderhistoryservice.kafka;
 
-import com.example.orderhistoryservice.entity.OrderHistory;
-import com.example.orderhistoryservice.repository.OrderHistoryRepository;
+import main.java.orderhistoryservice.entity.OrderHistory;
+import main.java.orderhistoryservice.repository.OrderHistoryRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +35,13 @@ public class OrderEventsConsumer {
             order.setTotalPrice(node.get("totalPrice").asDouble());
 
             order.setShippingAddress("N/A");
-            if (node.has("shippingAddress")) {
-                order.setShippingAddress(node.get("shippingAddress").asText());
+            if (node.has("shippingId") && !node.get("shippingId").isNull()) {
+                order.setShippingId(node.get("shippingId").asLong());
+                order.setShippingAddress(String.valueOf(node.get("shippingId").asLong())); // opcional
+            } else {
+                order.setShippingAddress("N/A");
             }
+            
 
             if (node.has("items")) {
                 String booksJson = objectMapper.writeValueAsString(node.get("items"));
