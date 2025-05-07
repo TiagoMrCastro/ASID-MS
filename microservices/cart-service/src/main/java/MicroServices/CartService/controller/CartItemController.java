@@ -87,8 +87,7 @@ public class CartItemController {
     /**
      * Endpoint para atualizar a quantidade de um item do carrinho.
      *
-     * @param id O ID do item do carrinho a ser atualizado.
-     * @param cartItem O objeto CartItem contendo a nova quantidade.
+     *
      * @return ResponseEntity contendo o item do carrinho atualizado e o status HTTP CREATED.
      */
 
