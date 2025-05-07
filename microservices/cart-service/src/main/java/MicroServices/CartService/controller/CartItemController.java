@@ -92,6 +92,12 @@ public class CartItemController {
      * @return ResponseEntity contendo o item do carrinho atualizado e o status HTTP CREATED.
      */
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<CartItem>> getCartItemsByUserId(@PathVariable Long userId) {
+        List<CartItem> cartItems = cartItemService.getCartItemsByUserId(userId);
+        return ResponseEntity.ok(cartItems);
+    }
+
     @PatchMapping("/quantity/{id}")
     public ResponseEntity<CartItem> patchCartQuantity(@PathVariable Long id , @RequestBody CartItem cartItem){
 

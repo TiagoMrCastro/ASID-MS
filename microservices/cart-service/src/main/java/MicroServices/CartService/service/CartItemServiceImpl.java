@@ -116,4 +116,10 @@ public class CartItemServiceImpl implements CartItemService {
     public List<CartItem> getCartItemsByUsername(String username) {
         throw new UnsupportedOperationException("Fetching by username is deprecated. Use userId instead.");
     }
+
+    @Override
+    public List<CartItem> getCartItemsByUserId(Long userId) {
+        return cartItemRepository.findByUserId(userId);
+    }
+
 }
