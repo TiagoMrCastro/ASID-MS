@@ -58,4 +58,28 @@ public class BookServiceImpl implements BookService {
             return null;
         }
     }
+
+    @Override
+    public Book addBook(Book book) {
+        return bookRepository.save(book);
+    }
+
+    @Override
+    public Book updateBook(Long id, Book book) {
+        Book existingBook = bookRepository.findById(id).orElse(null);
+        if (existingBook != null) {
+            existingBook.setTitle(book.getTitle());
+            existingBook.setIsbnNumber(book.getIsbnNumber());
+            existingBook.setDescription(book.getDescription());
+            existingBook.setPrice(book.getPrice());
+            existingBook.setQuantity(book.getQuantity());
+            existingBook.setAuthor(book.getAuthor());
+            existingBook.setCategory(book.getCategory());
+            existingBook.setSubcategory(book.getSubcategory());
+            existingBook.setImage(book.getImage());
+            return bookRepository.save(existingBook);
+        }
+        return null;
+    }
+
 }
