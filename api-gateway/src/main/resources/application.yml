@@ -37,6 +37,11 @@ spring:
           uri: http://order-history-service:8080
           predicates:
             - Path=/history/**
+            
+        - id: order-saga-orchestrator
+          uri: http://order-saga-orchestrator:8080
+          predicates:
+            - Path=/saga/**
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials

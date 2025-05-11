@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -110,4 +111,25 @@ public class BookController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PatchMapping("/books/{id}/adjustQuantity")
+    public ResponseEntity<Book> adjustQuantity(
+        @PathVariable Long id,
+        @RequestParam("delta") int delta) {
+
+        Book book = bookService.getBookById(id);
+        if (book == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        int newQty = book.getQuantity() + delta;
+        if (newQty < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        book.setQuantity(newQty);
+        bookService.addBook(book); // ou bookRepository.save(book)
+        return ResponseEntity.ok(book);
+    }
+
 }

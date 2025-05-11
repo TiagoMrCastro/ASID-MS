@@ -13,6 +13,7 @@ public class OrderDetailsResponse {
     private String shippingAddress;
     private List<BookInfo> books;
     private Shipping shipping;
+    private String sagaStatus;
 
     @Data
     public static class BookInfo {

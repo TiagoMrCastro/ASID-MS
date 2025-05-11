@@ -49,6 +49,13 @@ public class OrderEventsConsumer {
             } else {
                 order.setBooksJson("[]");
             }
+            if (node.has("sagaStatus")) {
+                order.setSagaStatus(node.get("sagaStatus").asText());
+            }   
+            else {
+                order.setSagaStatus("PENDING");
+            }
+
 
             repository.save(order);
             log.info("✅ OrderHistory salvo: {}", order.getOrderId());

@@ -229,6 +229,21 @@ services:
     networks:
       - backend
 
+  # Order Saga Orchestrator
+  order-saga-orchestrator:
+    build:
+      context: ./microservices/order-saga-orchestrator
+    container_name: order-saga-orchestrator
+    depends_on:
+      - order-service
+      - book-service
+      - shipping-service
+    ports:
+      - "8089:8080"
+    networks:
+      - backend
+
+
 volumes:
   bookdb-data:
   cartdb-data:

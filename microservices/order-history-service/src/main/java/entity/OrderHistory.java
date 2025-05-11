@@ -25,4 +25,7 @@ public class OrderHistory {
 
     @Lob
     private String booksJson; // detalhes dos livros como JSON
+
+    @Column(name = "saga_status")
+    private String sagaStatus; // ex: COMPLETED, FAILED
 }

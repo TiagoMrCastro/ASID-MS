@@ -5,6 +5,7 @@ import MicroServices.OrderService.dto.CreateOrderRequest;
 import MicroServices.OrderService.entity.OrderDetails;
 import MicroServices.OrderService.entity.Orders;
 import MicroServices.OrderService.entity.OutboxEvent;
+import MicroServices.OrderService.enums.SagaStatus;
 import MicroServices.OrderService.repository.OrderDetailsRepository;
 import MicroServices.OrderService.repository.OrdersRepository;
 import MicroServices.OrderService.repository.OutboxEventRepository;
@@ -32,6 +33,7 @@ public class OrderCommandService {
         order.setOrderDate(new Date());
         order.setUserId(request.getUserId());
         order.setShippingId(request.getShippingId());
+        order.setSagaStatus(SagaStatus.PENDING); // Pendente
 
         double total = request.getItems().stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
@@ -58,7 +60,8 @@ public class OrderCommandService {
                 request.getShippingId(),
                 request.getItems(),
                 savedOrder.getTotalPrice(),
-                savedOrder.getOrderDate()
+                savedOrder.getOrderDate(),
+                savedOrder.getSagaStatus().name() 
             ));
 
             OutboxEvent event = OutboxEvent.builder()
@@ -78,6 +81,15 @@ public class OrderCommandService {
         return savedOrder;
     }
 
+    @Transactional
+    public void updateSagaStatus(Long orderId, SagaStatus status) {
+        Orders order = ordersRepo.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setSagaStatus(status);
+        ordersRepo.save(order);
+    }
+
+
     record OrderCreatedEvent(Long orderId, Long userId, Long shippingId,
-                             Object items, double totalPrice, Date orderDate) {}
+                             Object items, double totalPrice, Date orderDate,String sagaStatus) {}
 }
