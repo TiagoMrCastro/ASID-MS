@@ -21,7 +21,8 @@ public class OrderServiceClient {
                 .uri("http://order-service:8080/orders")
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<>() {});
+                .bodyToMono(new ParameterizedTypeReference<>() {
+                });
     }
 
     public Mono<Void> cancelOrder(Long orderId) {
@@ -39,4 +40,13 @@ public class OrderServiceClient {
                 .retrieve()
                 .bodyToMono(Void.class);
     }
+
+    public Mono<Void> updateShippingId(Long orderId, Long shippingId) {
+        return webClientBuilder.build()
+                .put()
+                .uri("http://order-service:8080/orders/{orderId}/shipping/{shippingId}", orderId, shippingId)
+                .retrieve()
+                .bodyToMono(Void.class);
+    }
+
 }

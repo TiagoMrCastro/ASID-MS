@@ -43,6 +43,7 @@ public class OrderHistoryController {
             response.setOrderDate(order.getOrderDate());
             response.setTotalPrice(order.getTotalPrice());
             response.setShippingAddress(order.getShippingAddress());
+            response.setSagaStatus(order.getSagaStatus()); 
 
             try {
                 List<OrderDetailsResponse.BookInfo> books = Arrays.asList(

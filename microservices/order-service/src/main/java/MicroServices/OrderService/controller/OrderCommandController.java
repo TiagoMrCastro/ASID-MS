@@ -33,5 +33,14 @@ public class OrderCommandController {
         orderService.updateSagaStatus(orderId, SagaStatus.COMPLETED);
         return ResponseEntity.ok().build();
     }
+    
+    @PutMapping("/{orderId}/shipping/{shippingId}")
+    public ResponseEntity<Void> updateShippingId(
+            @PathVariable Long orderId,
+            @PathVariable Long shippingId) {
+        orderService.updateShippingId(orderId, shippingId);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

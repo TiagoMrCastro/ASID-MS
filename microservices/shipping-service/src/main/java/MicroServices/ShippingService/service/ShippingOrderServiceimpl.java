@@ -72,6 +72,12 @@ public class ShippingOrderServiceimpl implements ShippingOrderService {
     }
 
     @Override
+    public void deleteById(Long id) {
+        shippingOrderRepository.deleteById(id);
+    }
+
+
+    @Override
     public List<ShippingOrder> getAllShippingOrders() {
         return shippingOrderRepository.findAll();
     }

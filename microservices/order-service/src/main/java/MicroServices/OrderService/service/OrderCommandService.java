@@ -1,4 +1,3 @@
-// service/OrderCommandService.java
 package MicroServices.OrderService.service;
 
 import MicroServices.OrderService.dto.CreateOrderRequest;
@@ -16,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.UUID;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -32,8 +32,8 @@ public class OrderCommandService {
         Orders order = new Orders();
         order.setOrderDate(new Date());
         order.setUserId(request.getUserId());
-        order.setShippingId(request.getShippingId());
-        order.setSagaStatus(SagaStatus.PENDING); // Pendente
+        order.setShippingId(null); // shipping será adicionado depois
+        order.setSagaStatus(SagaStatus.PENDING);
 
         double total = request.getItems().stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
@@ -52,44 +52,61 @@ public class OrderCommandService {
             detailsRepo.save(detail);
         }
 
-        // Criar evento de outbox
-        try {
-            var payload = objectMapper.writeValueAsString(new OrderCreatedEvent(
-                savedOrder.getId(),
-                request.getUserId(),
-                request.getShippingId(),
-                request.getItems(),
-                savedOrder.getTotalPrice(),
-                savedOrder.getOrderDate(),
-                savedOrder.getSagaStatus().name() 
-            ));
-
-            OutboxEvent event = OutboxEvent.builder()
-                    .aggregateId(savedOrder.getId().toString())
-                    .aggregateType("Order")
-                    .type("OrderCreated")
-                    .payload(payload)
-                    .published(false)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-
-            outboxRepo.save(event);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao criar evento", e);
-        }
-
         return savedOrder;
+    }
+
+    @Transactional
+    public void updateShippingId(Long orderId, Long shippingId) {
+        Orders order = ordersRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setShippingId(shippingId);
+        ordersRepo.save(order);
     }
 
     @Transactional
     public void updateSagaStatus(Long orderId, SagaStatus status) {
         Orders order = ordersRepo.findById(orderId)
-            .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new RuntimeException("Order not found"));
         order.setSagaStatus(status);
         ordersRepo.save(order);
+
+        if (status == SagaStatus.COMPLETED) {
+            try {
+                List<OrderDetails> details = detailsRepo.findByOrderId(orderId);
+
+                var items = details.stream().map(detail -> Map.of(
+                        "bookId", detail.getBookId(),
+                        "quantity", detail.getQuantity(),
+                        "price", detail.getSubTotal() / detail.getQuantity()
+                )).toList();
+
+                var payload = objectMapper.writeValueAsString(new OrderCreatedEvent(
+                        order.getId(),
+                        order.getUserId(),
+                        order.getShippingId(),
+                        items,
+                        order.getTotalPrice(),
+                        order.getOrderDate(),
+                        order.getSagaStatus().name()
+                ));
+
+                OutboxEvent event = OutboxEvent.builder()
+                        .aggregateId(order.getId().toString())
+                        .aggregateType("Order")
+                        .type("OrderCreated")
+                        .payload(payload)
+                        .published(false)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+
+                outboxRepo.save(event);
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao criar evento", e);
+            }
+        }
     }
 
-
     record OrderCreatedEvent(Long orderId, Long userId, Long shippingId,
-                             Object items, double totalPrice, Date orderDate,String sagaStatus) {}
+                             Object items, double totalPrice, Date orderDate, String sagaStatus) {
+    }
 }
