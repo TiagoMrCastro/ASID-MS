@@ -9,11 +9,10 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
-
-
-
 
 @RestController
 @RequestMapping("/auth")
@@ -25,7 +24,7 @@ public class UserAuthController {
     private final UserRepository userRepo;
 
     public UserAuthController(AuthenticationConfiguration authConfig, JwtUtils jwtUtils,
-                              PasswordEncoder encoder, UserRepository userRepo) throws Exception {
+            PasswordEncoder encoder, UserRepository userRepo) throws Exception {
         this.authenticationManager = authConfig.getAuthenticationManager();
         this.jwtUtils = jwtUtils;
         this.encoder = encoder;
@@ -46,15 +45,21 @@ public class UserAuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Utilizador ou e-mail já existe.");
         }
     }
-    
 
     @PostMapping("/login")
+
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         try {
             authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
-            );
-            String token = jwtUtils.generateJwtToken(req.getUsername());
+                    new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
+
+            Optional<User> optionalUser = userRepo.findByUsername(req.getUsername());
+            if (optionalUser.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilizador não encontrado.");
+            }
+
+            User user = optionalUser.get();
+            String token = jwtUtils.generateJwtToken(user.getId(), user.getUsername());
             return ResponseEntity.ok(new JwtResponse(token));
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas.");
@@ -62,4 +67,3 @@ public class UserAuthController {
     }
 
 }
-
