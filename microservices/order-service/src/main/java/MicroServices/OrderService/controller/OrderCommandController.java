@@ -1,7 +1,7 @@
-// controller/OrderCommandController.java
 package MicroServices.OrderService.controller;
 
 import MicroServices.OrderService.dto.CreateOrderRequest;
+import MicroServices.OrderService.dto.ShippingDto;
 import MicroServices.OrderService.entity.Orders;
 import MicroServices.OrderService.enums.SagaStatus;
 import MicroServices.OrderService.service.OrderCommandService;
@@ -33,7 +33,7 @@ public class OrderCommandController {
         orderService.updateSagaStatus(orderId, SagaStatus.COMPLETED);
         return ResponseEntity.ok().build();
     }
-    
+
     @PutMapping("/{orderId}/shipping/{shippingId}")
     public ResponseEntity<Void> updateShippingId(
             @PathVariable Long orderId,
@@ -42,5 +42,17 @@ public class OrderCommandController {
         return ResponseEntity.ok().build();
     }
 
-
+    @PutMapping("/{orderId}/shipping")
+    public ResponseEntity<Void> addShipping(
+            @PathVariable Long orderId,
+            @RequestBody ShippingDto shipping) {
+        try {
+            orderService.attachShipping(orderId, shipping);
+            orderService.updateSagaStatus(orderId, SagaStatus.IN_SHIPPING);
+            orderService.sendBookReserveCommand(orderId); // ✅ comando com shipping
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

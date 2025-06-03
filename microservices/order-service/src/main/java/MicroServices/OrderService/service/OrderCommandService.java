@@ -1,6 +1,8 @@
 package MicroServices.OrderService.service;
 
+import MicroServices.OrderService.client.ShippingClient;
 import MicroServices.OrderService.dto.CreateOrderRequest;
+import MicroServices.OrderService.dto.ShippingDto;
 import MicroServices.OrderService.entity.OrderDetails;
 import MicroServices.OrderService.entity.Orders;
 import MicroServices.OrderService.entity.OutboxEvent;
@@ -10,6 +12,9 @@ import MicroServices.OrderService.repository.OrdersRepository;
 import MicroServices.OrderService.repository.OutboxEventRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +31,7 @@ public class OrderCommandService {
     private final OrderDetailsRepository detailsRepo;
     private final OutboxEventRepository outboxRepo;
     private final ObjectMapper objectMapper;
+    private final ShippingClient shippingClient;
 
     @Transactional
     public Orders createOrder(CreateOrderRequest request) {
@@ -58,10 +64,11 @@ public class OrderCommandService {
     @Transactional
     public void updateShippingId(Long orderId, Long shippingId) {
         Orders order = ordersRepo.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+            .orElseThrow(() -> new RuntimeException("Order not found"));
         order.setShippingId(shippingId);
         ordersRepo.save(order);
     }
+
 
     @Transactional
     public void updateSagaStatus(Long orderId, SagaStatus status) {
@@ -106,7 +113,60 @@ public class OrderCommandService {
         }
     }
 
+    @Transactional
+    public void attachShipping(Long orderId, ShippingDto shipping) {
+        Orders order = ordersRepo.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Encomenda não encontrada"));
+
+        // Chamar o shipping-service e criar envio
+        Long shippingId = shippingClient.createShipping(shipping); // Chamada HTTP ao outro microserviço
+
+        // Associar à order existente
+        order.setShippingId(shippingId);
+
+        // Save da order com shippingId
+        ordersRepo.save(order);
+    }
+
+
+    public void sendBookReserveCommand(Long orderId) {
+        Orders order = ordersRepo.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Encomenda não encontrada"));
+
+        List<OrderDetails> details = detailsRepo.findByOrderId(orderId);
+
+        var items = details.stream().map(detail -> Map.of(
+                "bookId", detail.getBookId(),
+                "quantity", detail.getQuantity(),
+                "price", detail.getSubTotal() / detail.getQuantity()
+        )).toList();
+
+        Map<String, Object> payload = Map.of(
+                "orderId", order.getId(),
+                "items", items,
+                "shipping", Map.of(
+                        "shippingId", order.getShippingId()
+                )
+        );
+
+        try {
+            String payloadJson = objectMapper.writeValueAsString(payload);
+            sendKafka("book.reserve.command", order.getId().toString(), payloadJson);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao enviar comando de reserva de livros", e);
+        }
+    }
+
+
     record OrderCreatedEvent(Long orderId, Long userId, Long shippingId,
                              Object items, double totalPrice, Date orderDate, String sagaStatus) {
     }
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    public void sendKafka(String topic, String key, String payload) {
+        kafkaTemplate.send(topic, key, payload);
+    }
+
 }
