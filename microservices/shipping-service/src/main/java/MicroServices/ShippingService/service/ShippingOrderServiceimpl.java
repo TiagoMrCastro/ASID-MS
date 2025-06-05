@@ -2,9 +2,9 @@ package MicroServices.ShippingService.service;
 
 import MicroServices.ShippingService.entity.OutboxEvent;
 import MicroServices.ShippingService.entity.ShippingOrder;
+import MicroServices.ShippingService.event.ShippingCreatedEvent;
 import MicroServices.ShippingService.repository.OutboxEventRepository;
 import MicroServices.ShippingService.repository.ShippingOrderRepository;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,18 +39,21 @@ public class ShippingOrderServiceimpl implements ShippingOrderService {
         }
 
         try {
-            // 3. Cria evento serializado como JSON
-            String payload = objectMapper.writeValueAsString(new ShippingCreatedEvent(
-                saved.getId(),
-                saved.getFirstName(),
-                saved.getLastName(),
-                saved.getAddress(),
-                saved.getCity(),
-                saved.getEmail(),
-                saved.getPostalCode()
-            ));
+            // 3. Cria o evento com os dados de shipping
+            ShippingCreatedEvent eventPayload = new ShippingCreatedEvent(
+                    saved.getId(),
+                    saved.getFirstName(),
+                    saved.getLastName(),
+                    saved.getAddress(),
+                    saved.getCity(),
+                    saved.getEmail(),
+                    saved.getPostalCode()
+            );
 
-            // 4. Cria e salva o evento na outbox
+            // 4. Serializa o evento
+            String payload = objectMapper.writeValueAsString(eventPayload);
+
+            // 5. Cria e salva evento na outbox
             OutboxEvent event = OutboxEvent.builder()
                     .aggregateId(saved.getId().toString())
                     .aggregateType("Shipping")
@@ -76,7 +79,6 @@ public class ShippingOrderServiceimpl implements ShippingOrderService {
         shippingOrderRepository.deleteById(id);
     }
 
-
     @Override
     public List<ShippingOrder> getAllShippingOrders() {
         return shippingOrderRepository.findAll();
@@ -86,15 +88,4 @@ public class ShippingOrderServiceimpl implements ShippingOrderService {
     public Optional<ShippingOrder> getById(Long id) {
         return shippingOrderRepository.findById(id);
     }
-
-    //Record com JsonProperty para evitar erros de serialização
-    private record ShippingCreatedEvent(
-        @JsonProperty("shippingId") Long shippingId,
-        @JsonProperty("firstName") String firstName,
-        @JsonProperty("lastName") String lastName,
-        @JsonProperty("address") String address,
-        @JsonProperty("city") String city,
-        @JsonProperty("email") String email,
-        @JsonProperty("postalCode") String postalCode
-    ) {}
 }

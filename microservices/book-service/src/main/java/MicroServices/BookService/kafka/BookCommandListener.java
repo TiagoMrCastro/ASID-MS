@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +91,8 @@ public class BookCommandListener {
             log.error("Erro ao enviar evento de falha para Kafka", e);
         }
     }
-
+    
+    @Transactional
     @KafkaListener(topics = "book.rollback.command", groupId = "book-service")
     public void handleRollback(String message) {
         try {
@@ -105,14 +108,19 @@ public class BookCommandListener {
                 Book book = bookRepo.findById(bookId)
                         .orElseThrow(() -> new RuntimeException("Livro não encontrado: " + bookId));
 
-                book.setQuantity(book.getQuantity() + quantity);
+                int before = book.getQuantity();
+                book.setQuantity(before + quantity);
                 bookRepo.save(book);
+
+                log.info("🔁 Livro ID {}: quantidade {} ➜ {}", bookId, before, book.getQuantity());
             }
 
-            log.info("↩️ Quantidades restauradas com sucesso.");
+            log.info("↩️ Rollback concluído: todas as quantidades restauradas com sucesso.");
 
         } catch (Exception e) {
             log.error("❌ Erro ao processar book.rollback.command", e);
         }
     }
+
+    
 }
