@@ -1,5 +1,6 @@
 import uuid
 import random
+import json
 from locust import HttpUser, task, between
 
 
@@ -83,6 +84,26 @@ class WebsiteUser(HttpUser):
                 params={"from": from_date, "to": to_date},
                 catch_response=True
         ) as response:
+            if response.status_code == 200:
+                response.success()
+            else:
+                response.failure(f"Erro {response.status_code} - {response.text}")
+
+    @task
+    def start_saga_order(self):
+        request_data = {
+            "userId": 1,
+            "bookIds": [1, 2],
+            "shippingAddress": "Rua Exemplo, 123",
+            "paymentMethod": "MBWAY"
+        }
+
+        headers = {"Content-Type": "application/json"}
+
+        with self.client.post("/saga/orders",
+                              data=json.dumps(request_data),
+                              headers=headers,
+                              catch_response=True) as response:
             if response.status_code == 200:
                 response.success()
             else:
