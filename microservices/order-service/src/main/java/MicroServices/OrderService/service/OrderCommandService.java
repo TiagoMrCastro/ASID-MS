@@ -10,16 +10,19 @@ import MicroServices.OrderService.repository.OrdersRepository;
 import MicroServices.OrderService.repository.OutboxEventRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderCommandService {
 
     private final OrdersRepository ordersRepo;
@@ -27,12 +30,15 @@ public class OrderCommandService {
     private final OutboxEventRepository outboxRepo;
     private final ObjectMapper objectMapper;
 
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
     @Transactional
     public Orders createOrder(CreateOrderRequest request) {
         Orders order = new Orders();
         order.setOrderDate(new Date());
         order.setUserId(request.getUserId());
-        order.setShippingId(null); // shipping será adicionado depois
+        order.setShippingId(null);
         order.setSagaStatus(SagaStatus.PENDING);
 
         double total = request.getItems().stream()
@@ -42,7 +48,6 @@ public class OrderCommandService {
 
         Orders savedOrder = ordersRepo.save(order);
 
-        // Criar detalhes
         for (CreateOrderRequest.BookOrderItem item : request.getItems()) {
             OrderDetails detail = new OrderDetails();
             detail.setOrderId(savedOrder.getId());
@@ -104,9 +109,100 @@ public class OrderCommandService {
                 throw new RuntimeException("Erro ao criar evento", e);
             }
         }
+        if (status == SagaStatus.FAILED) {
+             sendRollbackCommand(orderId);
+        }
     }
 
-    record OrderCreatedEvent(Long orderId, Long userId, Long shippingId,
-                             Object items, double totalPrice, Date orderDate, String sagaStatus) {
+    public void sendRollbackCommand(Long orderId) {
+        try {
+            List<OrderDetails> details = detailsRepo.findByOrderId(orderId);
+
+            var items = details.stream().map(detail -> Map.of(
+                    "bookId", detail.getBookId(),
+                    "quantity", detail.getQuantity()
+            )).toList();
+
+            Map<String, Object> payload = Map.of(
+                    "orderId", orderId,
+                    "items", items
+            );
+
+            String json = objectMapper.writeValueAsString(payload);
+            sendKafka("book.rollback.command", orderId.toString(), json);
+
+            log.info("📤 Comando de rollback enviado para orderId {}", orderId);
+
+        } catch (Exception e) {
+            throw new RuntimeException("❌ Erro ao enviar comando de rollback", e);
+        }
+    }
+
+
+
+    public void sendBookReserveCommand(Long orderId) {
+        Orders order = ordersRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Encomenda não encontrada"));
+
+        List<OrderDetails> details = detailsRepo.findByOrderId(orderId);
+
+        Map<String, Object> payload = buildBookReservePayload(order, details);
+
+        try {
+            String payloadJson = objectMapper.writeValueAsString(payload);
+            log.info("📤 Enviando comando: book.reserve.command → {}", payloadJson);
+            sendKafka("book.reserve.command", order.getId().toString(), payloadJson);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao enviar comando de reserva de livros", e);
+        }
+    }
+
+    private Map<String, Object> buildBookReservePayload(Orders order, List<OrderDetails> details) {
+        var items = details.stream().map(detail -> Map.of(
+                "bookId", detail.getBookId(),
+                "quantity", detail.getQuantity(),
+                "price", detail.getSubTotal() / detail.getQuantity()
+        )).toList();
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("orderId", order.getId());
+        payload.put("items", items);
+
+        if (order.getShippingId() != null) {
+            payload.put("shipping", Map.of("shippingId", order.getShippingId()));
+        }
+
+        return payload;
+    }
+
+    public void sendKafka(String topic, String key, String payload) {
+        kafkaTemplate.send(topic, key, payload);
+    }
+
+    record OrderCreatedEvent(
+            Long orderId, Long userId, Long shippingId,
+            Object items, double totalPrice, Date orderDate, String sagaStatus) {
+    }
+
+    // Consumer for order creation commands 
+    
+    @KafkaListener(topics = "order.create.command", groupId = "order-service")
+    public void onOrderCreateCommand(String message) {
+        try {
+            CreateOrderRequest request = objectMapper.readValue(message, CreateOrderRequest.class);
+            Orders order = createOrder(request);
+
+            var eventPayload = objectMapper.writeValueAsString(Map.of(
+                    "orderId", order.getId(),
+                    "userId", order.getUserId(),
+                    "items", request.getItems(),
+                    "shipping", request.getShipping() // pode ser null
+            ));
+
+            kafkaTemplate.send("order.created.event", order.getId().toString(), eventPayload);
+            log.info("📤 Evento enviado: order.created.event → {}", eventPayload);
+        } catch (Exception e) {
+            log.error("❌ Erro ao processar order.create.command", e);
+        }
     }
 }

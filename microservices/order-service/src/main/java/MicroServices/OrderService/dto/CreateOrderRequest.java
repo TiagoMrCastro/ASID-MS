@@ -9,6 +9,7 @@ public class CreateOrderRequest {
     private Long userId;
     private Long shippingId;
     private List<BookOrderItem> items;
+    private ShippingDto shipping;
     
     @Data
     public static class BookOrderItem {

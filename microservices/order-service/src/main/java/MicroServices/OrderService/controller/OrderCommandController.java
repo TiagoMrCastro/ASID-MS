@@ -1,4 +1,3 @@
-// controller/OrderCommandController.java
 package MicroServices.OrderService.controller;
 
 import MicroServices.OrderService.dto.CreateOrderRequest;
@@ -6,6 +5,8 @@ import MicroServices.OrderService.entity.Orders;
 import MicroServices.OrderService.enums.SagaStatus;
 import MicroServices.OrderService.service.OrderCommandService;
 import lombok.RequiredArgsConstructor;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,16 +32,17 @@ public class OrderCommandController {
     @PutMapping("/{orderId}/complete")
     public ResponseEntity<Void> completeOrder(@PathVariable Long orderId) {
         orderService.updateSagaStatus(orderId, SagaStatus.COMPLETED);
+        orderService.sendBookReserveCommand(orderId); // Aqui inicia o fluxo Saga!
         return ResponseEntity.ok().build();
     }
-    
+
     @PutMapping("/{orderId}/shipping/{shippingId}")
     public ResponseEntity<Void> updateShippingId(
             @PathVariable Long orderId,
             @PathVariable Long shippingId) {
         orderService.updateShippingId(orderId, shippingId);
+        orderService.updateSagaStatus(orderId, SagaStatus.IN_SHIPPING);
         return ResponseEntity.ok().build();
     }
-
 
 }
