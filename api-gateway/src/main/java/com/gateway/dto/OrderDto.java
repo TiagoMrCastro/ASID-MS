@@ -14,4 +14,5 @@ public class OrderDto {
     private Long userId;
     private Long shippingId;
     private List<Long> bookIds;
+    private String sagaStatus;
 }

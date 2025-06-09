@@ -3,6 +3,7 @@ package MicroServices.OrderService.controller;
 import MicroServices.OrderService.dto.CreateOrderRequest;
 import MicroServices.OrderService.entity.Orders;
 import MicroServices.OrderService.enums.SagaStatus;
+import MicroServices.OrderService.repository.OrdersRepository;
 import MicroServices.OrderService.service.OrderCommandService;
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class OrderCommandController {
 
     private final OrderCommandService orderService;
+    private final OrdersRepository ordersRepository;
 
     @PostMapping
     public ResponseEntity<Orders> createOrder(@RequestBody CreateOrderRequest request) {
@@ -32,7 +34,6 @@ public class OrderCommandController {
     @PutMapping("/{orderId}/complete")
     public ResponseEntity<Void> completeOrder(@PathVariable Long orderId) {
         orderService.updateSagaStatus(orderId, SagaStatus.COMPLETED);
-        orderService.sendBookReserveCommand(orderId); // Aqui inicia o fluxo Saga!
         return ResponseEntity.ok().build();
     }
 
@@ -43,6 +44,13 @@ public class OrderCommandController {
         orderService.updateShippingId(orderId, shippingId);
         orderService.updateSagaStatus(orderId, SagaStatus.IN_SHIPPING);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/latest/{userId}")
+    public ResponseEntity<Long> getLatestOrderByUser(@PathVariable Long userId) {
+        return ordersRepository.findTopByUserIdOrderByOrderDateDesc(userId)
+                .map(order -> ResponseEntity.ok(order.getId()))
+                .orElse(ResponseEntity.notFound().build());
     }
 
 }
