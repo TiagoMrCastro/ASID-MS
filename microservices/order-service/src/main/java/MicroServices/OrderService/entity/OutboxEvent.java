@@ -19,6 +19,7 @@ public class OutboxEvent {
     private String aggregateType;
     private String type;
 
+    @Column(columnDefinition = "TEXT")
     @Lob
     private String payload;
 

@@ -9,6 +9,8 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -40,9 +42,12 @@ public class UserAuthController {
             user.setFullname(req.getFullname());
             user.setPassword(req.getPassword()); // SEM criptografia por enquanto
             userRepo.save(user);
-            return ResponseEntity.ok("Utilizador registado com sucesso.");
+            return ResponseEntity.ok(Map.of("message", "Utilizador registado com sucesso"));
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Utilizador ou e-mail já existe.");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                     .body(Map.of("error", "Utilizador ou e-mail já existe"));
+
         }
     }
 

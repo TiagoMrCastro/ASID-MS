@@ -91,7 +91,6 @@ public class OrderCommandService {
                             "price", pricePerUnit);
                 }).toList();
 
-                log.info("📦 Criando payload com {} items", items.size());
 
                 var payload = objectMapper.writeValueAsString(new OrderCreatedEvent(
                         order.getId(),
@@ -102,7 +101,6 @@ public class OrderCommandService {
                         order.getOrderDate(),
                         order.getSagaStatus().name()));
 
-                log.info("📤 Payload serializado com sucesso: {} caracteres", payload.length());
 
                 OutboxEvent event = OutboxEvent.builder()
                         .aggregateId(order.getId().toString())
@@ -114,7 +112,6 @@ public class OrderCommandService {
                         .build();
 
                 outboxRepo.save(event);
-                log.info("✅ Evento salvo no outbox para orderId {}", orderId);
 
             } catch (Exception e) {
                 log.error("❌ Erro ao criar evento para ordem COMPLETED", e);

@@ -111,3 +111,6 @@ INSERT INTO cart (cartid, created_date, user_id) VALUES
 INSERT INTO cart_item (id, quantity, unit_price, sub_total, book_id, user_id, cart_id) VALUES 
 (1, 2, 39.99, 79.98, 2, 1, 1),
 (2, 1, 29.99, 29.99, 1, 2, 2);
+
+
+ALTER TABLE outbox_event MODIFY payload TEXT;
