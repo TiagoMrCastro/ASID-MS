@@ -246,7 +246,7 @@ services:
   locust:
     image: locustio/locust
     ports:
-       - "8091:8089"
+       - "8099:8089"
     volumes:
       - ./locust:/mnt/locust
     command: -f /mnt/locust/locustfile.py --host=http://gateway-service:8080
