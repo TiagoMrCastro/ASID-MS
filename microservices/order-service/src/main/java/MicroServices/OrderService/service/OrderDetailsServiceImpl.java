@@ -35,6 +35,7 @@ public class OrderDetailsServiceImpl implements OrderDetailsService {
         dto.setUserId(order.getUserId());
         dto.setShippingId(order.getShippingId());
         dto.setBookIds(bookIds);
+        dto.setSagaStatus(order.getSagaStatus().name());
 
         return dto;
     }

@@ -79,11 +79,18 @@ public class OrderCommandService {
             try {
                 List<OrderDetails> details = detailsRepo.findByOrderId(orderId);
 
-                var items = details.stream().map(detail -> Map.of(
-                        "bookId", detail.getBookId(),
-                        "quantity", detail.getQuantity(),
-                        "price", detail.getSubTotal() / detail.getQuantity()
-                )).toList();
+                var items = details.stream().map(detail -> {
+                    double pricePerUnit = detail.getQuantity() == 0 ? 0.0 : detail.getSubTotal() / detail.getQuantity();
+
+                    log.info("🔍 Item - bookId: {}, quantity: {}, pricePerUnit: {}",
+                            detail.getBookId(), detail.getQuantity(), pricePerUnit);
+
+                    return Map.of(
+                            "bookId", detail.getBookId(),
+                            "quantity", detail.getQuantity(),
+                            "price", pricePerUnit);
+                }).toList();
+
 
                 var payload = objectMapper.writeValueAsString(new OrderCreatedEvent(
                         order.getId(),
@@ -92,8 +99,8 @@ public class OrderCommandService {
                         items,
                         order.getTotalPrice(),
                         order.getOrderDate(),
-                        order.getSagaStatus().name()
-                ));
+                        order.getSagaStatus().name()));
+
 
                 OutboxEvent event = OutboxEvent.builder()
                         .aggregateId(order.getId().toString())
@@ -105,12 +112,15 @@ public class OrderCommandService {
                         .build();
 
                 outboxRepo.save(event);
+
             } catch (Exception e) {
+                log.error("❌ Erro ao criar evento para ordem COMPLETED", e);
                 throw new RuntimeException("Erro ao criar evento", e);
             }
         }
+
         if (status == SagaStatus.FAILED) {
-             sendRollbackCommand(orderId);
+            sendRollbackCommand(orderId);
         }
     }
 
@@ -120,13 +130,11 @@ public class OrderCommandService {
 
             var items = details.stream().map(detail -> Map.of(
                     "bookId", detail.getBookId(),
-                    "quantity", detail.getQuantity()
-            )).toList();
+                    "quantity", detail.getQuantity())).toList();
 
             Map<String, Object> payload = Map.of(
                     "orderId", orderId,
-                    "items", items
-            );
+                    "items", items);
 
             String json = objectMapper.writeValueAsString(payload);
             sendKafka("book.rollback.command", orderId.toString(), json);
@@ -137,8 +145,6 @@ public class OrderCommandService {
             throw new RuntimeException("❌ Erro ao enviar comando de rollback", e);
         }
     }
-
-
 
     public void sendBookReserveCommand(Long orderId) {
         Orders order = ordersRepo.findById(orderId)
@@ -161,15 +167,16 @@ public class OrderCommandService {
         var items = details.stream().map(detail -> Map.of(
                 "bookId", detail.getBookId(),
                 "quantity", detail.getQuantity(),
-                "price", detail.getSubTotal() / detail.getQuantity()
-        )).toList();
+                "price", detail.getSubTotal() / detail.getQuantity())).toList();
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("orderId", order.getId());
         payload.put("items", items);
 
         if (order.getShippingId() != null) {
-            payload.put("shipping", Map.of("shippingId", order.getShippingId()));
+            Map<String, Object> shippingMap = new HashMap<>();
+            shippingMap.put("shippingId", order.getShippingId());
+            payload.put("shipping", shippingMap);
         }
 
         return payload;
@@ -184,8 +191,8 @@ public class OrderCommandService {
             Object items, double totalPrice, Date orderDate, String sagaStatus) {
     }
 
-    // Consumer for order creation commands 
-    
+    // Consumer for order creation commands
+
     @KafkaListener(topics = "order.create.command", groupId = "order-service")
     public void onOrderCreateCommand(String message) {
         try {
