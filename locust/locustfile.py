@@ -7,21 +7,6 @@ from locust import HttpUser, task, between
 class WebsiteUser(HttpUser):
     wait_time = between(1, 3)
 
-    def on_start(self):
-        credentials = {
-            "username": "carlos",
-            "password": "1234"
-        }
-
-        with self.client.post("/auth/login", json=credentials, catch_response=True) as response:
-            if response.status_code == 200:
-                token = response.json().get("token")
-                self.headers = {"Authorization": f"Bearer {token}"}
-                response.success()
-            else:
-                print("Login falhou:", response.status_code, response.text)
-                response.failure("Falha no login")
-
     @task
     def get_books(self):
         self.client.get("/books", headers=self.headers)
