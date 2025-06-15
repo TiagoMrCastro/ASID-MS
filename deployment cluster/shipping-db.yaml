@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping-db
+  labels:
+    app: shipping-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shipping-db
+  template:
+    metadata:
+      labels:
+        app: shipping-db
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:10.7
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "secret"
+            - name: MYSQL_DATABASE
+              value: "shippingdb"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipping-db
+spec:
+  type: ClusterIP
+  selector:
+    app: shipping-db
+  ports:
+    - port: 3306
+      targetPort: 3306
+

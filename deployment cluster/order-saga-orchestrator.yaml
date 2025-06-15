@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-saga-orchestrator
+  labels:
+    app: order-saga-orchestrator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-saga-orchestrator
+  template:
+    metadata:
+      labels:
+        app: order-saga-orchestrator
+    spec:
+      containers:
+        - name: order-saga-orchestrator
+          image: MAD.ocir.io/axwj6egh1rpg/order-saga-orchestrator-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          args:
+            - "--server.port=8080"
+          env:
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092
+      imagePullSecrets:
+        - name: ocirsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-saga-orchestrator
+  labels:
+    app: order-saga-orchestrator
+spec:
+  selector:
+    app: order-saga-orchestrator
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: http
+  type: ClusterIP
+

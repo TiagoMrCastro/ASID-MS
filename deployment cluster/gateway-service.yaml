@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway-service
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+    spec:
+      containers:
+        - name: gateway-service
+          image: MAD.ocir.io/axwj6egh1rpg/gateway-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+      imagePullSecrets:
+        - name: ocirsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  labels:
+    app: gateway-service
+  annotations:
+    service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "100"
+spec:
+  type: LoadBalancer
+  selector:
+    app: gateway-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+

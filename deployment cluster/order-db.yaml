@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-db
+  labels:
+    app: order-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-db
+  template:
+    metadata:
+      labels:
+        app: order-db
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:10.7
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "secret"
+            - name: MYSQL_DATABASE
+              value: "orderdb"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-db
+spec:
+  type: ClusterIP
+  selector:
+    app: order-db
+  ports:
+    - port: 3306
+      targetPort: 3306
+
