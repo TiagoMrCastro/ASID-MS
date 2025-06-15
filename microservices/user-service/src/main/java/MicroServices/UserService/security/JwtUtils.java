@@ -10,12 +10,14 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    private final SecretKey jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512); // chave segura gerada automaticamente
+    private final SecretKey jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512); // chave segura gerada
+                                                                                     // automaticamente
     private final long jwtExpirationMs = 86400000;
 
-    public String generateJwtToken(String username) {
+    public String generateJwtToken(Long userId, String username) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("userId", userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(jwtSecret)
@@ -39,4 +41,14 @@ public class JwtUtils {
             return false;
         }
     }
+
+    public Long getUserIdFromJwt(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(jwtSecret)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userId", Long.class);
+    }
+
 }

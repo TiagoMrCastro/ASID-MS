@@ -17,4 +17,7 @@ public interface ShippingOrderService {
     List<ShippingOrder> getAllShippingOrders();
 
     Optional<ShippingOrder> getById(Long id);
+    
+    void deleteById(Long id);
+
 }

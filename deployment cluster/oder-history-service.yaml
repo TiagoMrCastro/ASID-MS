@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-history-service
+  labels:
+    app: order-history-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-history-service
+  template:
+    metadata:
+      labels:
+        app: order-history-service
+    spec:
+      containers:
+        - name: order-history-service
+          image: MAD.ocir.io/axwj6egh1rpg/order-history-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          args:
+            - "--server.port=8080"
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mariadb://order-history-db:3306/orderhistory
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: secret
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092
+      imagePullSecrets:
+        - name: ocirsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-history-service
+  labels:
+    app: order-history-service
+spec:
+  selector:
+    app: order-history-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: http
+  type: ClusterIP
+

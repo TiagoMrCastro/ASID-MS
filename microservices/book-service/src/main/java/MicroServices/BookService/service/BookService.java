@@ -13,5 +13,8 @@ public interface BookService {
     List<Book> getBooksByCategoryID(Long id);
     List<Book> searchBooks(String query);
     Book patchBookQuantity(Long id, Book book);
+    Book addBook(Book book);
+    Book updateBook(Long id, Book book);
+
     
 }

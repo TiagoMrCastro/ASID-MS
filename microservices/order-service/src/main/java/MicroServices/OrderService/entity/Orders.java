@@ -2,8 +2,11 @@ package MicroServices.OrderService.entity;
 
 import java.util.Date;
 
+import MicroServices.OrderService.enums.SagaStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,4 +32,8 @@ public class Orders {
 
     @Column(name = "shippingorder_id")
     private Long shippingId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "saga_status")
+    private SagaStatus sagaStatus;
 }

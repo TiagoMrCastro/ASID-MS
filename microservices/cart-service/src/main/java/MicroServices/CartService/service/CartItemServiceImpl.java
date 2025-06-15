@@ -41,7 +41,7 @@ public class CartItemServiceImpl implements CartItemService {
 
         // 2. Obter info do livro
         try {
-            BookDTO book = restTemplate.getForObject("http://book-service/books/" + cartItem.getBookId(), BookDTO.class);
+            BookDTO book = restTemplate.getForObject("http://book-service:8080/books/" + cartItem.getBookId(), BookDTO.class);
             
             if (book == null) {
                 throw new RuntimeException("Book not found.");
@@ -116,4 +116,10 @@ public class CartItemServiceImpl implements CartItemService {
     public List<CartItem> getCartItemsByUsername(String username) {
         throw new UnsupportedOperationException("Fetching by username is deprecated. Use userId instead.");
     }
+
+    @Override
+    public List<CartItem> getCartItemsByUserId(Long userId) {
+        return cartItemRepository.findByUserId(userId);
+    }
+
 }

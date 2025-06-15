@@ -17,10 +17,15 @@ spring:
     show-sql: true
     database-platform: org.hibernate.dialect.MariaDBDialect
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
-  instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${random.value}
+  kafka:
+    bootstrap-servers: kafka:9092
+
+    consumer:
+      group-id: book-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer

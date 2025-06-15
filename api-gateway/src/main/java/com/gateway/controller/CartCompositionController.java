@@ -23,13 +23,13 @@ public class CartCompositionController {
 
         // Obtem os dados do user
         Mono<UserDto> userMono = webClient.get()
-            .uri("lb://user-service/users/" + request.getUserId())
+            .uri("http://user-service:8080/users/" + request.getUserId())
             .retrieve()
             .bodyToMono(UserDto.class);
 
         // dados do livro
         Mono<BookDto> bookMono = webClient.get()
-            .uri("lb://book-service/books/" + request.getBookId())
+            .uri("http://book-service:8080/books/" + request.getBookId())
             .retrieve()
             .bodyToMono(BookDto.class);
 
@@ -45,7 +45,7 @@ public class CartCompositionController {
 
             // Enviar item ao cart-service
             return webClient.post()
-                .uri("lb://cart-service/cart/items")
+            .uri("http://cart-service:8080/cart/items")
                 .bodyValue(cartItem)
                 .retrieve()
                 .onStatus(status -> status.is4xxClientError(), response -> {

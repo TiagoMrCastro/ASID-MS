@@ -9,40 +9,55 @@ spring:
     gateway:
       routes:
         - id: book-service
-          uri: lb://book-service
+          uri: http://book-service:8080
           predicates:
             - Path=/books/**
 
         - id: cart-service
-          uri: lb://cart-service
+          uri: http://cart-service:8080
           predicates:
             - Path=/cart/**
 
         - id: order-service
-          uri: lb://order-service
+          uri: http://order-service:8080
           predicates:
             - Path=/orders/**
 
         - id: shipping-service
-          uri: lb://shipping-service
+          uri: http://shipping-service:8080
           predicates:
             - Path=/shipping/**
 
         - id: user-service
-          uri: lb://user-service
+          uri: http://user-service:8080
           predicates:
             - Path=/auth/**, /users/**
 
-      discovery:
-        locator:
-          enabled: false
+        - id: order-history-service
+          uri: http://order-history-service:8080
+          predicates:
+            - Path=/history/**
+            
+        - id: order-saga-orchestrator
+          uri: http://order-saga-orchestrator:8080
+          predicates:
+            - Path=/saga/**
 
-  cors:
-    allowed-origins: "*"
-    allowed-methods: "*"
-    allowed-headers: "*"
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+              - "http://79.72.63.173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true

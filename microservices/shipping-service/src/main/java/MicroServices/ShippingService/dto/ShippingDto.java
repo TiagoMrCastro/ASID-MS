@@ -10,5 +10,5 @@ public class ShippingDto {
     private String address;
     private String city;
     private String email;
-    private String postal_code;
+    private String postalCode;
 }
